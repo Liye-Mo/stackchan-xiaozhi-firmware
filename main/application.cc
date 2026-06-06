@@ -1027,12 +1027,23 @@ void Application::SendUserText(const std::string& text) {
     if (state == kDeviceStateIdle) {
         // 待机时走标准唤醒路径建立 channel
         WakeWordInvoke(text);
-    } else if (state == kDeviceStateListening || state == kDeviceStateSpeaking) {
-        // 已在对话中：直接发 detect 消息，不打断 channel 也不重新唤醒
+    } else if (state == kDeviceStateSpeaking) {
+        // 打断当前说话，等 channel 关闭后重新唤�?
+        Schedule([this, text]() {
+            AbortSpeaking(kAbortReasonNone);
+            Schedule([this, text]() {
+                WakeWordInvoke(text);
+            });
+        });
+    } else if (state == kDeviceStateListening) {
+        // 关闭当前聆听 channel，重新唤�?
         Schedule([this, text]() {
             if (protocol_) {
-                protocol_->SendWakeWordDetected(text);
+                protocol_->CloseAudioChannel();
             }
+            Schedule([this, text]() {
+                WakeWordInvoke(text);
+            });
         });
     }
 }

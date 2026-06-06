@@ -1,6 +1,5 @@
 #include "power_save_timer.h"
 #include "application.h"
-#include "settings.h"
 
 #include <esp_log.h>
 
@@ -29,11 +28,8 @@ PowerSaveTimer::~PowerSaveTimer() {
 
 void PowerSaveTimer::SetEnabled(bool enabled) {
     if (enabled && !enabled_) {
-        Settings settings("wifi", false);
-        if (!settings.GetBool("sleep_mode", true)) {
-            ESP_LOGI(TAG, "Power save timer is disabled by settings");
-            return;
-        }
+        // Bypass NVS check - always enable power save timer
+        // Previously: if (!settings.GetBool("sleep_mode", true)) return;
 
         ticks_ = 0;
         enabled_ = enabled;
@@ -61,7 +57,7 @@ void PowerSaveTimer::OnShutdownRequest(std::function<void()> callback) {
 
 void PowerSaveTimer::PowerSaveCheck() {
     auto& app = Application::GetInstance();
-    if (!in_sleep_mode_ && !app.CanEnterSleepMode()) {
+    if (!in_sleep_mode_ && false /* bypass CanEnterSleepMode */) {
         ticks_ = 0;
         return;
     }

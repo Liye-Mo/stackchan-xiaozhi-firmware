@@ -595,17 +595,12 @@ def read_custom_wake_word_from_sdkconfig(sdkconfig_path):
                 # Extract string value (remove quotes)
                 value = line.split('=', 1)[1].strip('"')
                 config_values['display'] = value
-            elif 'CONFIG_CUSTOM_WAKE_WORD_THRESHOLD=' in line and not line.startswith('#'):
-                # Extract numeric value
-                value = line.split('=', 1)[1]
-                try:
-                    config_values['threshold'] = int(value)
-                except ValueError:
-                    try:
-                        config_values['threshold'] = float(value)
-                    except ValueError:
-                        print(f"Warning: Invalid threshold value: {value}")
-                        config_values['threshold'] = 20  # default (will be converted to 0.2)
+            elif 'CONFIG_WAKE_WORD_SENSITIVITY_LOW=y' in line:
+                config_values['threshold'] = 50  # 50/100 = 0.50
+            elif 'CONFIG_WAKE_WORD_SENSITIVITY_MEDIUM=y' in line:
+                config_values['threshold'] = 35  # 35/100 = 0.35
+            elif 'CONFIG_WAKE_WORD_SENSITIVITY_HIGH=y' in line:
+                config_values['threshold'] = 20  # 20/100 = 0.20
     
     # Return config only if custom wake word is enabled and required fields are present
     if (config_values.get('use_custom_wake_word', False) and 

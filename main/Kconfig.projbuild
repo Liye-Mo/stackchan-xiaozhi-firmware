@@ -781,13 +781,21 @@ config CUSTOM_WAKE_WORD_DISPLAY
     help
         Greeting sent to the server after wake word detection
 
-config CUSTOM_WAKE_WORD_THRESHOLD
-    int "Custom Wake Word Threshold (%)"
-    default 20
-    range 1 99
-    depends on USE_CUSTOM_WAKE_WORD
+choice WAKE_WORD_SENSITIVITY
+    prompt "Wake Word Sensitivity (唤醒词灵敏度)"
+    default WAKE_WORD_SENSITIVITY_MEDIUM
+    depends on USE_ESP_WAKE_WORD || USE_AFE_WAKE_WORD || USE_CUSTOM_WAKE_WORD
     help
-        Custom Wake Word Threshold, range 1-99, the smaller the more sensitive, default 20
+        Select wake word detection sensitivity.
+        Higher sensitivity makes wake word easier to detect but also increases false triggers.
+
+    config WAKE_WORD_SENSITIVITY_LOW
+        bool "Low (低)"
+    config WAKE_WORD_SENSITIVITY_MEDIUM
+        bool "Medium (中)"
+    config WAKE_WORD_SENSITIVITY_HIGH
+        bool "High (高)"
+endchoice
 
 config SEND_WAKE_WORD_DATA
     bool "Send Wake Word Data"

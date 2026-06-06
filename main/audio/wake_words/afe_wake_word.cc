@@ -1,4 +1,4 @@
-#include "afe_wake_word.h"
+﻿#include "afe_wake_word.h"
 #include "audio_service.h"
 #include <esp_log.h>
 #include <sstream>
@@ -72,6 +72,8 @@ bool AfeWakeWord::Initialize(AudioCodec* codec, srmodel_list_t* models_list) {
     }
     afe_config_t* afe_config = afe_config_init(input_format.c_str(), models_, AFE_TYPE_SR, AFE_MODE_HIGH_PERF);
     afe_config->aec_init = codec_->input_reference();
+
+    afe_config->wakenet_mode = DET_MODE_90;
     afe_config->aec_mode = AEC_MODE_SR_HIGH_PERF;
     afe_config->afe_perferred_core = 1;
     afe_config->afe_perferred_priority = 1;
@@ -79,6 +81,15 @@ bool AfeWakeWord::Initialize(AudioCodec* codec, srmodel_list_t* models_list) {
     
     afe_iface_ = esp_afe_handle_from_config(afe_config);
     afe_data_ = afe_iface_->create_from_config(afe_config);
+
+    // Fine-grained wake word threshold: higher = fewer false triggers
+#if defined(CONFIG_WAKE_WORD_SENSITIVITY_LOW)
+    afe_iface_->set_wakenet_threshold(afe_data_, 1, 0.70f);
+#elif defined(CONFIG_WAKE_WORD_SENSITIVITY_MEDIUM)
+    afe_iface_->set_wakenet_threshold(afe_data_, 1, 0.55f);
+#elif defined(CONFIG_WAKE_WORD_SENSITIVITY_HIGH)
+    afe_iface_->set_wakenet_threshold(afe_data_, 1, 0.45f);
+#endif
 
     xTaskCreate([](void* arg) {
         auto this_ = (AfeWakeWord*)arg;

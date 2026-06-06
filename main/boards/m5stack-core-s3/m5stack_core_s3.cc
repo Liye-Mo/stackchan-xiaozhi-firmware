@@ -1752,7 +1752,7 @@ private:
         power_save_timer_ = new PowerSaveTimer(-1, 60, -1);
         power_save_timer_->OnEnterSleepMode([this]() {
             GetDisplay()->SetPowerSaveMode(true);
-            GetBacklight()->SetBrightness(10);
+            GetBacklight()->SetBrightness(0);
             servo_.PauseScan();
             if (py32_dev_) {
                 uint16_t off[12] = {};

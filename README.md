@@ -55,7 +55,7 @@
 
 4. **自定义灯光后需要物理重启**：烧录后需要拔 USB + 关机，等 30 秒后再插 USB 重启。尝试过用软件方式免除但未成功。换色不频繁的话影响不大。
 
-5. **唤醒词灵敏度需自行调整**：默认阈值可能在易误触发和需要大声喊之间摇摆，请在 `sdkconfig.defaults` 里调整 `CONFIG_CUSTOM_WAKE_WORD_THRESHOLD` 找到适合自己环境的值。另外灵敏度和唤醒词本身关系很大——生僻词/自定义人名的识别率天然低于"你好小智"这类常见词组，阈值需要设得更低（更灵敏）才能触发，但相应误触发概率也会增加。
+5. **唤醒词灵敏度需自行调整**：默认阈值可能在易误触发和需要大声喊之间摇摆，请在 `sdkconfig.defaults` 里调整 `CONFIG_WAKE_WORD_SENSITIVITY`（Low/Medium/High 三档）找到适合自己环境的值。另外灵敏度和唤醒词本身关系很大——生僻词/自定义人名的识别率天然低于"你好小智"这类常见词组，需要设成 High（更灵敏）才能触发，但相应误触发概率也会增加。
 
 6. **自部署小智服务端的朋友注意安全配置**：
 ① 服务端的 websocket 和 http 端口不要直接暴露公网，用防火墙限制访问来源
@@ -104,7 +104,7 @@ CONFIG_BOARD_TYPE_M5STACK_CORE_S3=y
 CONFIG_USE_CUSTOM_WAKE_WORD=y
 CONFIG_CUSTOM_WAKE_WORD="ni hao xiao zhi"
 CONFIG_CUSTOM_WAKE_WORD_DISPLAY="你好小智"
-CONFIG_CUSTOM_WAKE_WORD_THRESHOLD=35
+CONFIG_WAKE_WORD_SENSITIVITY_MEDIUM=y
 CONFIG_OTA_URL="http://你的服务器IP:8003/xiaozhi/ota/"
 ```
 

@@ -90,13 +90,21 @@ bool CustomWakeWord::Initialize(AudioCodec* codec, srmodel_list_t* models_list) 
         language_ = "cn";
         models_ = esp_srmodel_init("model");
 #ifdef CONFIG_CUSTOM_WAKE_WORD
-        threshold_ = CONFIG_CUSTOM_WAKE_WORD_THRESHOLD / 100.0f;
         commands_.push_back({CONFIG_CUSTOM_WAKE_WORD, CONFIG_CUSTOM_WAKE_WORD_DISPLAY, "wake"});
 #endif
     } else {
         models_ = models_list;
         ParseWakenetModelConfig();
     }
+
+    // Apply wake word sensitivity from Kconfig (fallback if not set by model config)
+#if defined(CONFIG_WAKE_WORD_SENSITIVITY_LOW)
+    if (models_list == nullptr) threshold_ = 0.50f;
+#elif defined(CONFIG_WAKE_WORD_SENSITIVITY_MEDIUM)
+    if (models_list == nullptr) threshold_ = 0.35f;
+#elif defined(CONFIG_WAKE_WORD_SENSITIVITY_HIGH)
+    if (models_list == nullptr) threshold_ = 0.20f;
+#endif
     // Add a second wake word here if needed, e.g.:
     // commands_.push_back({"ni hao xiao zhi", "你好小智", "wake"});
 
@@ -119,7 +127,6 @@ bool CustomWakeWord::Initialize(AudioCodec* codec, srmodel_list_t* models_list) 
 
     multinet_ = esp_mn_handle_from_name(mn_name_);
     multinet_model_data_ = multinet_->create(mn_name_, duration_);
-    threshold_ = 0.5f;
     multinet_->set_det_threshold(multinet_model_data_, threshold_);
     ESP_LOGI(TAG, "multinet detect threshold set to %.2f", threshold_);
     esp_mn_commands_clear();

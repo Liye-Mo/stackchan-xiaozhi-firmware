@@ -35,7 +35,20 @@ bool EspWakeWord::Initialize(AudioCodec* codec, srmodel_list_t* models_list) {
     }
     char *model_name = wakenet_model_->model_name[0];
     wakenet_iface_ = (esp_wn_iface_t*)esp_wn_handle_from_name(model_name);
+#if defined(CONFIG_WAKE_WORD_SENSITIVITY_HIGH)
     wakenet_data_ = wakenet_iface_->create(model_name, DET_MODE_95);
+#else
+    wakenet_data_ = wakenet_iface_->create(model_name, DET_MODE_90);
+#endif
+
+    // Apply fine-grained detection threshold
+#if defined(CONFIG_WAKE_WORD_SENSITIVITY_LOW)
+    wakenet_iface_->set_det_threshold(wakenet_data_, 0.65f, 1);
+#elif defined(CONFIG_WAKE_WORD_SENSITIVITY_MEDIUM)
+    wakenet_iface_->set_det_threshold(wakenet_data_, 0.50f, 1);
+#elif defined(CONFIG_WAKE_WORD_SENSITIVITY_HIGH)
+    wakenet_iface_->set_det_threshold(wakenet_data_, 0.50f, 1);
+#endif
 
     int frequency = wakenet_iface_->get_samp_rate(wakenet_data_);
     int audio_chunksize = wakenet_iface_->get_samp_chunksize(wakenet_data_);
