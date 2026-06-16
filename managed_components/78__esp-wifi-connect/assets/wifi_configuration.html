@@ -1574,7 +1574,7 @@
                         barsHtml += '</span>';
 
                         const icon = ap.authmode === 0 ? ' 🌐' : ' 🔒';
-                        link.innerHTML = icon + ' ' + ap.ssid + '<span class="ap-dbm">' + ap.rssi + ' dBm ' + barsHtml + '</span>';
+                        link.innerHTML = ap.ssid + ' ' + icon + '<span class="ap-dbm">' + ap.rssi + ' dBm ' + barsHtml + '</span>';
                         
                         link.addEventListener('click', event => {
                             event.preventDefault();
