@@ -346,9 +346,11 @@
         }
         #ap_list a .sig-bar {
             display: inline-flex; gap: 2px; align-items: flex-end;
+            height: 24px;
         }
         #ap_list a .sig-bar span {
-            width: 3px; border-radius: 2px; background: var(--accent);
+            width: 5px; border-radius: 2px 2px 0 0;
+            transition: all 0.3s;
         }
 
         /* ========== Advanced rows ========== */
@@ -1562,14 +1564,17 @@
                         const link = document.createElement('a');
                         link.href = '#';
 
-                        // Signal strength bars
-                        let barCount = 1;
-                        if (ap.rssi > -50) barCount = 4;
-                        else if (ap.rssi > -65) barCount = 3;
-                        else if (ap.rssi > -75) barCount = 2;
+                        // Signal strength — color-coded bars
+                        let level = 1, color = '#ef4444'; // weak: red
+                        if (ap.rssi > -50)      { level = 4; color = '#22c55e'; }      // strong: green
+                        else if (ap.rssi > -60) { level = 4; color = '#84cc16'; }      // good: lime
+                        else if (ap.rssi > -70) { level = 3; color = '#eab308'; }      // fair: yellow
+                        else if (ap.rssi > -80) { level = 2; color = '#f97316'; }      // poor: orange
+
                         let barsHtml = '<span class="sig-bar">';
+                        const heights = [6, 11, 16, 22];
                         for (let i = 0; i < 4; i++) {
-                            barsHtml += '<span style="height:' + (6 + i * 5) + 'px;opacity:' + (i < barCount ? '1' : '0.2') + ';"></span>';
+                            barsHtml += '<span style="height:' + heights[i] + 'px;background:' + (i < level ? color : 'var(--border)') + ';"></span>';
                         }
                         barsHtml += '</span>';
 
