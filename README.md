@@ -1,4 +1,4 @@
-# 🤖 Stackchan-XiaoZhi
+# 🤖 StackChan-XiaoZhi
 
 > M5Stack Core S3 Stack-chan 陪伴机器人固件 —— 触摸 · 体感 · 情绪灯 · 舵机
 
@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/platform-ESP32--S3-green?logo=espressif" alt="ESP32-S3">
   <img src="https://img.shields.io/badge/framework-ESP--IDF%20v5.5-blue?logo=espressif" alt="ESP-IDF v5.5">
   <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License">
-  <img src="https://img.shields.io/github/v/release/howecheung/Stackchan-XiaoZhi" alt="Release">
+  <img src="https://img.shields.io/github/v/release/howecheung/StackChan-XiaoZhi" alt="Release">
 </p>
 
 ---
@@ -32,7 +32,7 @@
 
 ## 🚀 快速开始
 
-从 [Releases](https://github.com/howecheung/Stackchan-XiaoZhi/releases) 下载 `bootloader.bin`、`partition-table.bin`、`ota_data_initial.bin`、`xiaozhi.bin`，一行命令烧录：
+从 [Releases](https://github.com/howecheung/StackChan-XiaoZhi/releases) 下载 `bootloader.bin`、`partition-table.bin`、`ota_data_initial.bin`、`xiaozhi.bin`，一行命令烧录：
 
 ```bash
 pip install esptool
@@ -54,8 +54,8 @@ esptool.py --chip esp32s3 -p COM4 -b 460800 \
 需要 **ESP-IDF v5.5.x**，在 "ESP-IDF 5.5 CMD" 中执行：
 
 ```bat
-git clone https://github.com/howecheung/Stackchan-XiaoZhi.git
-cd Stackchan-XiaoZhi
+git clone https://github.com/howecheung/StackChan-XiaoZhi.git
+cd StackChan-XiaoZhi
 
 :: 首次编译
 idf.py set-target esp32s3
