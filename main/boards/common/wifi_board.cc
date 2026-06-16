@@ -29,6 +29,9 @@ static constexpr int MAX_CONSECUTIVE_FAILURES = 3;
 static const char* NVS_WIFI_NS = "wifi";
 static const char* NVS_FAIL_CNT = "conn_fail_cnt";
 
+static void ResetFailureCount();
+static void IncrementFailureCount();
+
 WifiBoard::WifiBoard() {
     // Create connection timeout timer
     esp_timer_create_args_t timer_args = {
