@@ -93,6 +93,20 @@ idf.py build flash
 
 ---
 
+## 📖 功能使用方法
+
+### 🔌 配网页面预览（无需烧录）
+
+修改配网页面后，可本地预览效果，无需编译烧录：
+
+```bash
+node scripts/wifi-preview.js
+```
+
+浏览器打开 `http://localhost:3000`，修改 `managed_components/78__esp-wifi-connect/assets/wifi_configuration.html` 后刷新即可。模拟了 5 个 WiFi 热点 + 3 个已保存网络，OTA 和睡眠模式选项可见。
+
+---
+
 ## ⚠️ 已知问题
 
 <details>

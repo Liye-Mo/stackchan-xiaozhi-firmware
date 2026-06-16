@@ -93,6 +93,20 @@ Edit `main/boards/m5stack-core-s3/m5stack_core_s3.cc`:
 
 ---
 
+## 📖 Usage
+
+### 🔌 WiFi Config Page Preview (No Flashing Required)
+
+Preview the WiFi config page locally without compiling or flashing:
+
+```bash
+node scripts/wifi-preview.js
+```
+
+Open `http://localhost:3000` in browser. Edit `managed_components/78__esp-wifi-connect/assets/wifi_configuration.html` and refresh to see changes. Mock data includes 5 WiFi hotspots, 3 saved networks, and visible OTA/sleep options.
+
+---
+
 ## ⚠️ Known Issues
 
 <details>
