@@ -1743,9 +1743,10 @@ private:
         auto& mcp = McpServer::GetInstance();
 
         // 辅助 lambda：暂停 FaceTracker + 移动 + 短延迟后恢复（让位置稳定）
+        // 关键: Pause(false) — 否则 FaceTracker::Pause 默认参数 resume_scan=true
+        // 会立刻打开 IdleScan，4 秒内随机扫描会把我们设的位置覆盖掉。
         auto move_with_pause = [this](int yaw, int pitch, int time_ms, int hold_ms) {
-            // 暂停 FaceTracker（如果已启动）
-            face_tracker_.Pause();
+            face_tracker_.Pause(false);  // 不要 resume scan!
             servo_.PauseScan();
             servo_.MoveTo(yaw, pitch, time_ms);
             // 用 task 保持一段时间，否则函数立刻返回，FaceTracker 立刻 Resume 接管
@@ -1785,7 +1786,7 @@ private:
             PropertyList(),
             [this, move_with_pause](const PropertyList&) -> ReturnValue {
                 // center = (0, 30) + 让 FaceTracker 接管（resume）
-                face_tracker_.Pause();
+                face_tracker_.Pause(false);
                 servo_.PauseScan();
                 servo_.Center();
                 // 800ms 后 Resume 让人脸追踪恢复
