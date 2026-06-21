@@ -1732,8 +1732,62 @@ private:
             });
     }
 
+    void RegisterServoMcpTools() {
+        // 4 个 servo 控制工具暴露给 LLM —— 调头部到指定角度、回中、点头、摇头。
+        // 默认 firmware 把 servo 当自主行为不暴露，这里恢复出来让用户语音控制。
+        auto& mcp = McpServer::GetInstance();
+
+        mcp.AddTool("self.head.move",
+            "Move the head/face to a specific angle. Use this when user says 'turn left/right', "
+            "'look up/down', 'tilt your head N degrees', etc. "
+            "yaw: -60 to 60 degrees (negative=left, positive=right, 0=center). "
+            "pitch: -10 to 60 degrees (small=look down, larger=look up; 30 is normal eye level).",
+            PropertyList({
+                Property("yaw", kPropertyTypeInteger, -60, 60),
+                Property("pitch", kPropertyTypeInteger, -10, 60),
+            }),
+            [this](const PropertyList& props) -> ReturnValue {
+                int yaw = props["yaw"].value<int>();
+                int pitch = props["pitch"].value<int>();
+                servo_.PauseScan();
+                servo_.MoveTo(yaw, pitch, 800);
+                ESP_LOGI(TAG, "MCP head move: yaw=%d pitch=%d", yaw, pitch);
+                return true;
+            });
+
+        mcp.AddTool("self.head.center",
+            "Move the head back to the center/forward-facing position.",
+            PropertyList(),
+            [this](const PropertyList&) -> ReturnValue {
+                servo_.Center();
+                servo_.ResumeScan();
+                ESP_LOGI(TAG, "MCP head center");
+                return true;
+            });
+
+        mcp.AddTool("self.head.nod",
+            "Nod the head (yes / agreement / hello). "
+            "Use when user says nod, agree, say yes, greet, etc.",
+            PropertyList(),
+            [this](const PropertyList&) -> ReturnValue {
+                servo_.Nod();
+                ESP_LOGI(TAG, "MCP head nod");
+                return true;
+            });
+
+        mcp.AddTool("self.head.shake",
+            "Shake the head (no / disagreement / refuse). "
+            "Use when user says shake head, disagree, refuse, say no, etc.",
+            PropertyList(),
+            [this](const PropertyList&) -> ReturnValue {
+                servo_.Shake();
+                ESP_LOGI(TAG, "MCP head shake");
+                return true;
+            });
+    }
+
     void InitializePowerSaveTimer() {
-        power_save_timer_ = new PowerSaveTimer(-1, 30, -1);
+        power_save_timer_ = new PowerSaveTimer(-1, -1, -1);
         power_save_timer_->OnEnterSleepMode([this]() {
             GetDisplay()->SetPowerSaveMode(true);
             GetBacklight()->SetBrightness(0);
@@ -2173,6 +2227,7 @@ public:
             InitializePy32LedDevice();
             RegisterLedMcpTools();
             RegisterExpressionMcpTool();
+            RegisterServoMcpTools();
         }
 
         InitializeSpi();
