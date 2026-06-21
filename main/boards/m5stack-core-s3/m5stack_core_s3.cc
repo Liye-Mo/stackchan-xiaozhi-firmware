@@ -1760,7 +1760,7 @@ private:
                 // 显式说"回正"或下次对话开启）
                 delete c;
                 vTaskDelete(nullptr);
-            }, "servo_hold", 2048, ctx, 2, nullptr, 1);
+            }, "servo_hold", 2048, ctx, 2, nullptr);
         };
 
         mcp.AddTool("self.head.move",
@@ -1798,7 +1798,7 @@ private:
                     c->s->ResumeScan();
                     delete c;
                     vTaskDelete(nullptr);
-                }, "center_resume", 2048, ctx, 2, nullptr, 1);
+                }, "center_resume", 2048, ctx, 2, nullptr);
                 ESP_LOGI(TAG, "MCP head center");
                 return true;
             });
