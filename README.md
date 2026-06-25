@@ -1,8 +1,8 @@
-# 🤖 StackChan-XiaoZhi (Claude Code bridge fork)
+# 🤖 StackChan-XiaoZhi (Claude Code bridge 适配版)
 
 > M5Stack Core S3 Stack-chan 陪伴机器人固件 — Servo MCP 工具 + 唤醒词长期在线 + Claude Code 桥接
 
-基于 [xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) 官方固件，本 fork 在 `codex-refactor` 分支加了：
+基于 [xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) 官方固件，在 `main` 分支加了：
 
 - ✨ 4 个 servo MCP 工具（`self.head.move / center / nod / shake`）暴露给 LLM 语音调用
 - 🐛 修 servo "转过去又弹回" bug（FaceTracker + Application + SetEmotion 三重并发）
@@ -11,7 +11,7 @@
 
 完整说明 + 部署步骤 → **[heavenchenggong/stackchan-claude-bridge](https://github.com/heavenchenggong/stackchan-claude-bridge)**
 
-下载预编译固件 → [Actions Artifacts](https://github.com/heavenchenggong/StackChan-XiaoZhi/actions/workflows/build-cores3.yaml)
+下载预编译固件 → [Actions Artifacts](https://github.com/heavenchenggong/stackchan-xiaozhi-firmware/actions/workflows/build-cores3.yaml)
 
 ---
 
