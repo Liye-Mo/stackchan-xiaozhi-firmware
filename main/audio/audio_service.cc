@@ -653,6 +653,34 @@ void AudioService::PlaySound(const std::string_view& ogg) {
     demuxer->Process(buf, size);
 }
 
+void AudioService::PlayPCM(const uint8_t* pcm, size_t size, int sample_rate) {
+    // Enable output if needed (same pattern as PlaySound)
+    if (!codec_->output_enabled()) {
+        esp_timer_stop(audio_power_timer_);
+        esp_timer_start_periodic(audio_power_timer_, AUDIO_POWER_CHECK_INTERVAL_MS * 1000);
+        codec_->EnableOutput(true);
+    }
+
+    // Convert raw PCM bytes → vector<int16_t>
+    size_t samples = size / 2;
+    std::vector<int16_t> pcm_data(samples);
+    memcpy(pcm_data.data(), pcm, size);
+
+    auto task = std::make_unique<AudioTask>();
+    task->type = kAudioTaskTypeDecodeToPlaybackQueue;
+    task->pcm = std::move(pcm_data);
+    task->timestamp = 0;
+
+    {
+        std::lock_guard<std::mutex> lock(audio_queue_mutex_);
+        audio_playback_queue_.push_back(std::move(task));
+        audio_queue_cv_.notify_all();
+    }
+
+    last_output_time_ = std::chrono::steady_clock::now();
+    debug_statistics_.playback_count++;
+}
+
 bool AudioService::IsIdle() {
     std::lock_guard<std::mutex> lock(audio_queue_mutex_);
     return audio_encode_queue_.empty() && audio_decode_queue_.empty() && audio_playback_queue_.empty() && audio_testing_queue_.empty();

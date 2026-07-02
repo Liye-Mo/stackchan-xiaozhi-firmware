@@ -266,6 +266,19 @@ void McpServer::AddUserOnlyTools() {
                 settings.SetString("download_url", url);
                 return true;
             });
+
+    // Play audio from URL (PCM/HTTP)
+    AddUserOnlyTool("self.audio.play_url", "Play audio from HTTP URL (linear16 PCM or MP3)",
+            PropertyList({
+                Property("url", kPropertyTypeString, "HTTP URL of the audio file")
+            }),
+            [](const PropertyList& properties) -> ReturnValue {
+                auto url = properties["url"].value<std::string>();
+                Application::GetInstance().Schedule([url]() {
+                    Application::GetInstance().PlayUrl(url);
+                });
+                return true;
+            });
 }
 
 void McpServer::AddTool(McpTool* tool) {
