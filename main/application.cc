@@ -8,8 +8,6 @@
 #include "assets/lang_config.h"
 #include "mcp_server.h"
 #include "assets.h"
-#include "board.h"
-#include "network.h"
 #include "settings.h"
 
 #include <cstring>
