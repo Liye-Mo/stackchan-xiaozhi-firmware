@@ -274,11 +274,13 @@ void McpServer::AddUserOnlyTools() {
             }),
             [](const PropertyList& properties) -> ReturnValue {
                 auto url = properties["url"].value<std::string>();
+                // Schedule HTTP download + PlayPCM on main thread
                 Application::GetInstance().Schedule([url]() {
                     Application::GetInstance().PlayUrl(url);
                 });
                 return true;
             });
+    // M.O. — audio play_url tool registered above
 }
 
 void McpServer::AddTool(McpTool* tool) {
