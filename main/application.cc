@@ -8,7 +8,8 @@
 #include "assets/lang_config.h"
 #include "mcp_server.h"
 #include "assets.h"
-#include <esp_http_client.h>
+#include "board.h"
+#include "network.h"
 #include "settings.h"
 
 #include <cstring>
@@ -1159,59 +1160,43 @@ void Application::PlaySound(const std::string_view& sound) {
 void Application::PlayUrl(const std::string& url) {
     ESP_LOGI(TAG, "PlayUrl: %s", url.c_str());
 
-    // Configure HTTP client
-    esp_http_client_config_t config = {};
-    config.url = url.c_str();
-    config.method = HTTP_METHOD_GET;
-    config.timeout_ms = 15000;
-    config.buffer_size = 4096;
+    auto& board = Board::GetInstance();
+    auto network = board.GetNetwork();
+    auto http = network->CreateHttp(0);
 
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    if (!client) {
-        ESP_LOGE(TAG, "PlayUrl: Failed to init HTTP client");
+    if (!http->Open("GET", url)) {
+        ESP_LOGE(TAG, "PlayUrl: HTTP open failed");
         return;
     }
 
-    esp_err_t err = esp_http_client_open(client, 0);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "PlayUrl: HTTP open failed: %d", err);
-        esp_http_client_cleanup(client);
+    int status = http->GetStatusCode();
+    if (status != 200) {
+        ESP_LOGE(TAG, "PlayUrl: HTTP status %d", status);
+        http->Close();
         return;
     }
 
-    int content_length = esp_http_client_fetch_headers(client);
-    if (content_length <= 0) {
-        ESP_LOGE(TAG, "PlayUrl: No content");
-        esp_http_client_close(client);
-        esp_http_client_cleanup(client);
+    // Read in chunks and feed PCM to playback queue
+    constexpr int kChunkSize = 4096;
+    uint8_t* buffer = (uint8_t*)malloc(kChunkSize);
+    if (!buffer) {
+        http->Close();
         return;
     }
 
-    ESP_LOGI(TAG, "PlayUrl: Downloading %d bytes", content_length);
-
-    // Read and feed PCM data in chunks
-    std::vector<uint8_t> buffer;
-    buffer.reserve(content_length);
-    buffer.resize(4096);
     int total_read = 0;
-
-    while (total_read < content_length) {
-        int to_read = std::min((int)buffer.size(), content_length - total_read);
-        int read = esp_http_client_read(client, (char*)buffer.data(), to_read);
+    while (true) {
+        int read = http->Read((char*)buffer, kChunkSize);
         if (read <= 0) break;
 
-        // Feed PCM directly to playback queue
-        if (total_read == 0) {
-            ESP_LOGI(TAG, "PlayUrl: First chunk %d bytes → PlayPCM", read);
-        }
-        audio_service_.PlayPCM(buffer.data(), read, 16000);
+        audio_service_.PlayPCM(buffer, read, 16000);
         total_read += read;
     }
 
     ESP_LOGI(TAG, "PlayUrl: Done, %d bytes played", total_read);
 
-    esp_http_client_close(client);
-    esp_http_client_cleanup(client);
+    free(buffer);
+    http->Close();
 }
 
 void Application::ResetProtocol() {
